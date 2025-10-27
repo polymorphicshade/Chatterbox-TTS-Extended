@@ -229,10 +229,10 @@ try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
     nltk.download('punkt')
-#try:
-#    nltk.data.find('tokenizers/punkt_tab')
-#except LookupError:
-#    nltk.download('punkt_tab')
+try:
+    nltk.data.find('tokenizers/punkt_tab')
+except LookupError:
+    nltk.download('punkt_tab')
 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "0"
 
