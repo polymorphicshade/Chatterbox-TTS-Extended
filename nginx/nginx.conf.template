@@ -1,0 +1,26 @@
+server {
+  listen 80;
+  server_name ${HOST};
+  return 301 https://$host$request_uri;
+}
+
+server {
+  listen 443 ssl;
+  server_name ${HOST};
+  ssl_certificate /etc/nginx/certs/cert.crt;
+  ssl_certificate_key /etc/nginx/certs/key.key;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  location /${CHATTERBOX_UI_ROUTE_NAME}/ {
+    proxy_pass ${CHATTERBOX_UI_URL};
+    proxy_buffering off;
+    proxy_redirect off;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    client_max_body_size 0;
+  }
+}

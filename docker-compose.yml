@@ -1,0 +1,37 @@
+services:
+
+  # Chatterbox
+  chatterbox:
+    container_name: "chatterbox"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python3", "Chatter.py", "--host", "0.0.0.0", "--port", "7860"]
+    runtime: nvidia
+    restart: unless-stopped
+    environment:
+      - GRADIO_ROOT_PATH=/${CHATTERBOX_UI_ROUTE_NAME}
+      - NVIDIA_VISIBLE_DEVICES=0
+    volumes:
+      - ./.nltk_data:/root/nltk_data
+    user: 0:0
+    ports:
+        - 7860:7860
+
+  # Nginx
+  nginx:
+    image: nginx:latest
+    container_name: "nginx"
+    ports:
+      - 443:443
+    environment:
+      - CHATTERBOX_UI_ROUTE_NAME=${CHATTERBOX_UI_ROUTE_NAME}
+      - CHATTERBOX_UI_URL=http://chatterbox:7860/
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      chatterbox:
+        condition: service_started
+    user: 0:0
+    restart: unless-stopped
