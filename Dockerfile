@@ -9,7 +9,7 @@ ARG USER_HOME=/root
 ARG GRADIO_SERVER_PORT=7860
 ARG GRADIO_SERVER_NAME=0.0.0.0
 ARG GRADIO_ANALYTICS_ENABLED=False
-ARG GRADIO_SHARE=False  
+ARG GRADIO_SHARE=False 
 
 RUN apt-get update --quiet=2 \
   && apt-get upgrade --assume-yes \
@@ -49,12 +49,13 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 WORKDIR /app
 
-# Copy application files
-COPY --chown=$UID:$GID . .
+COPY --chown=$UID:$GID requirements.txt .
 
-# Install dependencies
+# Install dependencies (this will be cached unless requirements.txt changes)
 RUN pip install --upgrade pip
 RUN pip install --requirement requirements.txt
+
+COPY --chown=$UID:$GID . .
 
 # Fix CUDA cudnn path
 ENV LD_LIBRARY_PATH=$VIRTUAL_ENV/lib/python3.10/site-packages/nvidia/cudnn/lib:$VIRTUAL_ENV/lib/python3.10/site-packages/nvidia/cuda_runtime/lib:$LD_LIBRARY_PATH
